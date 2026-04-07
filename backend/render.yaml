@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: scamly-ai-backend
+    env: node
+    plan: starter
+    rootDir: backend
+    buildCommand: echo ready
+    startCommand: node server.js
+    autoDeploy: true

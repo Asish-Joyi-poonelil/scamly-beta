@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scamly Beta Feedback</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <main class="wrap">
+    <span class="badge">Feedback</span>
+    <h1>Send Scamly Beta feedback</h1>
+    <section class="card">
+      <p class="muted">Use this to report false positives, false negatives, extraction problems, or feature ideas. Your note goes to your Scamly backend.</p>
+      <form id="feedbackForm">
+        <label>Provider
+          <select name="provider">
+            <option value="gmail">Gmail</option>
+            <option value="outlook">Outlook</option>
+            <option value="yahoo">Yahoo Mail</option>
+            <option value="other">Other</option>
+          </select>
+        </label>
+        <label>Feedback type
+          <select name="feedback_type">
+            <option value="false_positive">Scamly flagged a safe email</option>
+            <option value="false_negative">Scamly missed a scam</option>
+            <option value="bug">Bug or extraction issue</option>
+            <option value="feature">Feature request</option>
+            <option value="general">General feedback</option>
+          </select>
+        </label>
+        <label>Email subject or short reference
+          <input name="subject" type="text" maxlength="320" placeholder="Optional">
+        </label>
+        <label>Shown score
+          <input name="score" type="number" min="0" max="100" placeholder="Optional">
+        </label>
+        <label>Shown severity
+          <select name="severity">
+            <option value="">Optional</option>
+            <option value="low">Low</option>
+            <option value="moderate">Moderate</option>
+            <option value="high">High</option>
+            <option value="critical">Critical</option>
+          </select>
+        </label>
+        <label>What happened?
+          <textarea name="message" required placeholder="Explain what Scamly got wrong, what looked suspicious, or what you want improved."></textarea>
+        </label>
+        <label>Your email for follow-up
+          <input name="email" type="email" placeholder="Optional">
+        </label>
+        <input name="page_url" type="hidden">
+        <button type="submit">Send feedback</button>
+        <div id="status" class="small"></div>
+      </form>
+    </section>
+  </main>
+  <script>
+    const form = document.getElementById('feedbackForm');
+    const statusEl = document.getElementById('status');
+    const params = new URLSearchParams(location.search);
+    ['provider','subject','score','severity'].forEach((key) => {
+      const value = params.get(key);
+      if (value && form.elements[key]) form.elements[key].value = value;
+    });
+    form.elements.page_url.value = location.href;
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      statusEl.className = 'small';
+      statusEl.textContent = 'Sending…';
+      const payload = Object.fromEntries(new FormData(form).entries());
+      const response = await fetch('/api/feedback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await response.json().catch(() => ({}));
+      if (response.ok) {
+        statusEl.className = 'small success';
+        statusEl.textContent = `Thanks — feedback saved (${data.storage || 'ok'}).`;
+        form.reset();
+        form.elements.page_url.value = location.href;
+      } else {
+        statusEl.className = 'small error';
+        statusEl.textContent = data.error || 'Could not send feedback.';
+      }
+    });
+  </script>
+</body>
+</html>

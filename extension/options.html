@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scamly Beta Settings</title>
+    <link rel="stylesheet" href="src/ui.css">
+  </head>
+  <body class="scamly-app wide">
+    <main class="page">
+      <div class="hero">
+        <div>
+          <div class="brand">Scamly</div>
+          <h1>AI email scam detection for Gmail, Outlook, and Yahoo Mail</h1>
+          <p class="lead">Scamly Beta runs a local first-pass scan in your browser, then can optionally call your Scamly backend for a deeper AI review.</p>
+        </div>
+        <span class="pill beta">Public beta</span>
+      </div>
+
+      <section class="card" id="welcomeCard" hidden>
+        <h2>Before you use it</h2>
+        <p>Scamly is a decision-support tool, not a guarantee. It may miss scams or flag safe emails. Always verify sensitive requests through a trusted channel.</p>
+      </section>
+
+      <section class="card">
+        <h2>Controls</h2>
+        <label class="toggle-row">
+          <span>
+            <strong>Enable Scamly</strong>
+            <small>Turn live scan panels on or off</small>
+          </span>
+          <input id="enabledToggle" type="checkbox">
+        </label>
+        <label class="toggle-row with-gap">
+          <span>
+            <strong>Show floating panel</strong>
+            <small>Hide the page overlay while keeping scans active</small>
+          </span>
+          <input id="panelToggle" type="checkbox">
+        </label>
+      </section>
+
+      <section class="card">
+        <h2>Deep AI Check</h2>
+        <label class="field">
+          <span>Scamly backend URL</span>
+          <input id="backendUrl" type="url" placeholder="https://your-service.onrender.com">
+        </label>
+        <label class="toggle-row with-gap">
+          <span>
+            <strong>Enable Deep AI Check</strong>
+            <small>Scamly will call your backend for richer analysis</small>
+          </span>
+          <input id="aiToggle" type="checkbox">
+        </label>
+        <label class="toggle-row with-gap">
+          <span>
+            <strong>Auto-run Deep AI Check</strong>
+            <small>Run it automatically after the local scan on supported pages</small>
+          </span>
+          <input id="autoDeepScanToggle" type="checkbox">
+        </label>
+        <label class="toggle-row with-gap checkbox-wrap">
+          <span>
+            <strong>I understand visible email text will be sent to my Scamly backend for this feature</strong>
+            <small>Keep this off if you only want local scanning</small>
+          </span>
+          <input id="aiConsentToggle" type="checkbox">
+        </label>
+        <div class="button-row compact">
+          <button id="testBackendBtn" class="secondary" type="button">Test backend</button>
+          <span id="backendStatus" class="muted"></span>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Public site and feedback</h2>
+        <label class="field">
+          <span>Public Scamly site URL</span>
+          <input id="publicSiteUrl" type="url" placeholder="https://your-service.onrender.com">
+        </label>
+        <label class="field">
+          <span>Feedback page URL</span>
+          <input id="feedbackPageUrl" type="url" placeholder="https://your-service.onrender.com/feedback.html">
+        </label>
+        <label class="field">
+          <span>Fallback feedback link</span>
+          <input id="feedbackUrl" type="url" placeholder="mailto:you@example.com?subject=Scamly%20Feedback">
+        </label>
+        <p class="hint">Best path for launch: use the backend site URL for privacy, support, and feedback pages, and keep mailto only as a fallback.</p>
+      </section>
+
+      <section class="card">
+        <h2>Privacy and beta disclosure</h2>
+        <ul>
+          <li>Scamly reads the visible email content only on supported webmail pages so it can score scam risk.</li>
+          <li>Local scanning stays in the browser.</li>
+          <li>Deep AI Check is optional and only runs after you turn it on and provide a backend URL.</li>
+          <li>The popup stores only the latest scan summary locally so you can see the result later.</li>
+        </ul>
+      </section>
+
+      <section class="actions-row">
+        <button id="saveBtn" class="primary">Save settings</button>
+        <span id="saveStatus" class="muted"></span>
+      </section>
+    </main>
+    <script src="src/options.js" type="module"></script>
+  </body>
+</html>

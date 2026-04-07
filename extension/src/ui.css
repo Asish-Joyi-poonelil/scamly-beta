@@ -1,0 +1,170 @@
+:root {
+  color-scheme: light dark;
+  --bg: #0f1726;
+  --panel: #172234;
+  --soft: #223149;
+  --text: #eff6ff;
+  --muted: #b7cae8;
+  --line: rgba(255,255,255,0.1);
+  --accent: #dce9ff;
+  --accent-text: #11233f;
+}
+
+body.scamly-app {
+  margin: 0;
+  min-width: 380px;
+  background: linear-gradient(180deg, #0f1726, #101a2b 60%, #0f1726);
+  color: var(--text);
+  font: 14px/1.45 Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+body.scamly-app.wide {
+  min-width: 0;
+}
+
+.panel,
+.page {
+  padding: 16px;
+}
+
+.page {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 28px 20px 40px;
+}
+
+.topbar,
+.hero,
+.toggle-row,
+.actions-row,
+.button-grid,
+.button-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.hero {
+  align-items: flex-start;
+  margin-bottom: 18px;
+}
+
+.brand {
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+h1, h2 {
+  margin: 0 0 8px;
+}
+
+.lead,
+.muted,
+.hint,
+.smallprint,
+.tiny {
+  color: var(--muted);
+}
+
+.tiny {
+  font-size: 12px;
+}
+
+.section,
+.card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 14px;
+  margin-top: 12px;
+}
+
+.summary-card {
+  display: grid;
+  gap: 6px;
+}
+
+.summary-label {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+
+.summary-score {
+  font-size: 22px;
+  font-weight: 800;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  flex: none;
+}
+
+.primary,
+.secondary {
+  appearance: none;
+  border: 0;
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.primary {
+  background: var(--accent);
+  color: var(--accent-text);
+}
+
+.secondary {
+  background: rgba(255,255,255,0.08);
+  color: var(--text);
+}
+
+.field {
+  display: grid;
+  gap: 8px;
+}
+
+.field input[type="url"] {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: rgba(255,255,255,0.05);
+  color: var(--text);
+  padding: 10px 12px;
+  box-sizing: border-box;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.pill.beta {
+  background: rgba(255, 196, 76, 0.18);
+  color: #ffd56b;
+}
+
+a { color: #c5dcff; }
+ul { margin: 8px 0 0; padding-left: 20px; }
+.button-grid { margin-top: 0; }
+.actions-row { margin-top: 14px; }
+.with-gap { margin-top: 12px; }
+.checkbox-wrap { align-items: flex-start; }
+.button-row.compact { justify-content: flex-start; margin-top: 12px; }

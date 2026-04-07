@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scamly Beta</title>
+    <link rel="stylesheet" href="src/ui.css">
+  </head>
+  <body class="scamly-app">
+    <main class="panel">
+      <div class="topbar">
+        <div>
+          <div class="brand">Scamly</div>
+          <div class="muted">Public beta</div>
+        </div>
+        <span class="pill beta">BETA</span>
+      </div>
+
+      <section class="section">
+        <label class="toggle-row">
+          <span>
+            <strong>Scanning</strong>
+            <small>Show live scam warnings in supported webmail tabs</small>
+          </span>
+          <input id="enabledToggle" type="checkbox">
+        </label>
+        <label class="toggle-row with-gap">
+          <span>
+            <strong>Deep AI Check</strong>
+            <small>Send the visible email text to your Scamly backend after opt-in</small>
+          </span>
+          <input id="aiToggle" type="checkbox">
+        </label>
+      </section>
+
+      <section class="section">
+        <div class="summary-card">
+          <div class="summary-label">Last scan</div>
+          <div id="scoreText" class="summary-score">No scan yet</div>
+          <div id="summaryText" class="muted">Open an email in Gmail, Outlook, or Yahoo Mail.</div>
+          <div id="sourceText" class="tiny"></div>
+        </div>
+      </section>
+
+      <section class="section button-grid">
+        <button id="rescanBtn" class="primary">Rescan current tab</button>
+        <button id="optionsBtn" class="secondary">Settings</button>
+      </section>
+
+      <section class="section smallprint">
+        Scamly Beta always runs a local first-pass scan. Deep AI Check is optional and only works after you connect your own Scamly backend.
+      </section>
+    </main>
+    <script src="src/popup.js" type="module"></script>
+  </body>
+</html>
