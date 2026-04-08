@@ -103,6 +103,9 @@
   font-size: 12px;
   color: #97b7e7;
   white-space: nowrap;
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 #scamly-root .scamly-status.error {
@@ -202,6 +205,14 @@
 #scamly-root .scamly-link {
   background: rgba(255,255,255,0.08);
   color: #eef4ff;
+}
+
+#scamly-root .sev-checking {
+  border-color: rgba(118, 156, 255, 0.34);
+}
+#scamly-root .sev-checking .scamly-risk-pill {
+  background: rgba(118, 156, 255, 0.16);
+  color: #b8ceff;
 }
 
 #scamly-root .sev-low {
