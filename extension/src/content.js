@@ -63,7 +63,8 @@
       sender: textFrom(senderEl),
       body: textFrom(bodyEl),
       links: linkObjectsFrom(bodyEl),
-      sourceNode: bodyEl || subjectEl
+      sourceNode: bodyEl || subjectEl,
+      messageOpen: Boolean(subjectEl && bodyEl)
     };
   }
 
@@ -79,7 +80,8 @@
       sender: textFrom(senderEl),
       body: textFrom(bodyEl),
       links: linkObjectsFrom(bodyEl),
-      sourceNode: bodyEl || subjectEl
+      sourceNode: bodyEl || subjectEl,
+      messageOpen: Boolean(bodyEl && (textFrom(subjectEl) || textFrom(senderEl)))
     };
   }
 
@@ -95,7 +97,8 @@
       sender: textFrom(senderEl),
       body: textFrom(bodyEl),
       links: linkObjectsFrom(bodyEl),
-      sourceNode: bodyEl || subjectEl
+      sourceNode: bodyEl || subjectEl,
+      messageOpen: Boolean(bodyEl && (textFrom(subjectEl) || textFrom(senderEl)))
     };
   }
 
@@ -108,7 +111,8 @@
       sender: '',
       body: textFrom(bodyEl),
       links: linkObjectsFrom(bodyEl),
-      sourceNode: bodyEl || subjectEl
+      sourceNode: bodyEl || subjectEl,
+      messageOpen: Boolean(bodyEl && subjectEl)
     };
   }
 
@@ -129,7 +133,8 @@
       sender: raw.sender,
       body: raw.body,
       links: raw.links,
-      sourceNode: raw.sourceNode
+      sourceNode: raw.sourceNode,
+      messageOpen: raw.messageOpen
     };
   }
 
@@ -165,18 +170,6 @@
       .replace(/'/g, '&#039;');
   }
 
-  function signalItems(flags) {
-    return flags.slice(0, 4).map((flag) => `<li><strong>${escapeHtml(flag.label)}:</strong> ${escapeHtml(flag.reason)}</li>`).join('');
-  }
-
-  function adviceItems(advice) {
-    return advice.slice(0, 3).map((item) => `<li>${escapeHtml(item)}</li>`).join('');
-  }
-
-  function aiReasonItems(reasons) {
-    return (reasons || []).slice(0, 4).map((item) => `<li>${escapeHtml(item)}</li>`).join('');
-  }
-
   function buildFeedbackHref(settings, email, displayedResult) {
     const fallback = settings.feedbackUrl || settings.feedbackPageUrl || 'mailto:asishjpoonelil@gmail.com?subject=Scamly%20Beta%20Feedback';
     const safeFeedbackPageUrl = String(settings.feedbackPageUrl || '').trim();
@@ -195,67 +188,59 @@
     return fallback;
   }
 
-  function createAiStatusHtml(aiState) {
-    if (!aiState) {
-      return `<div class="scamly-ai-state muted">Deep AI Check is off. Turn it on in settings to analyze the visible email through your Scamly backend.</div>`;
-    }
-    if (aiState.status === 'loading') {
-      return `<div class="scamly-ai-state">Deep AI Check is running…</div>`;
-    }
-    if (aiState.status === 'error') {
-      return `<div class="scamly-ai-state error">Deep AI Check unavailable: ${escapeHtml(aiState.message)}</div>`;
-    }
+  function localSignalsText(flags) {
+    const list = (flags || []).slice(0, 2).map((flag) => flag.label || flag.reason).filter(Boolean);
+    return list.length ? list.join(' • ') : 'No strong local scam signals in the visible message.';
+  }
+
+  function adviceText(items) {
+    const list = (items || []).slice(0, 2).filter(Boolean);
+    return list.length ? list.join(' • ') : 'Use normal caution before clicking links or sharing codes.';
+  }
+
+  function aiSummary(aiState) {
+    if (!aiState) return 'AI off';
+    if (aiState.status === 'loading') return 'AI checking…';
+    if (aiState.status === 'error') return `AI unavailable: ${aiState.message}`;
     const ai = aiState.analysis?.ai || {};
-    return `
-      <div class="scamly-ai-row">
-        <div>
-          <div class="scamly-ai-title">AI verdict: ${escapeHtml(ai.verdict || 'Review needed')}</div>
-          <div class="scamly-ai-meta">${escapeHtml((ai.confidence || 'medium') + ' confidence')} · ${escapeHtml(ai.scam_type || 'general risk')}</div>
-        </div>
-        <div class="scamly-ai-chip">${escapeHtml(ai.score || 0)}/100</div>
-      </div>
-      <div class="scamly-ai-summary">${escapeHtml(ai.summary || '')}</div>
-      <ul class="scamly-ai-reasons">${aiReasonItems(ai.reasons) || '<li>No extra AI reasons returned.</li>'}</ul>
-    `;
+    return `AI: ${ai.verdict || 'review needed'} · ${ai.score || 0}/100`;
   }
 
   function renderResult(localResult, settings, aiState, email) {
     if (!settings.showPanel) return;
     const root = ensureRoot();
     const displayedResult = aiState?.status === 'done' ? aiState.analysis.combined : localResult;
-    const scoreLabel = aiState?.status === 'done' ? 'Hybrid score' : 'Local score';
     const feedbackHref = buildFeedbackHref(settings, email, displayedResult);
     root.className = `sev-${displayedResult.severity}`;
     root.innerHTML = `
-      <div class="scamly-card sev-${displayedResult.severity}">
-        <div class="scamly-header">
-          <div class="scamly-title-wrap">
-            <div class="scamly-title">Scamly</div>
-            <div class="scamly-badge">beta</div>
-          </div>
-          <button class="scamly-close" aria-label="Hide Scamly panel">×</button>
-        </div>
-        <div class="scamly-body">
-          <div class="scamly-score-row">
-            <div>
-              <div class="scamly-score">${displayedResult.score}/100</div>
-              <div class="scamly-score-kicker">${escapeHtml(scoreLabel)}</div>
-              <div class="scamly-summary">${escapeHtml(displayedResult.summary)}</div>
+      <div class="scamly-banner sev-${displayedResult.severity}">
+        <div class="scamly-main-row">
+          <div class="scamly-brand-wrap">
+            <div class="scamly-brand-line">
+              <span class="scamly-brand">Scamly</span>
+              <span class="scamly-beta">beta</span>
             </div>
-            <div class="scamly-level">${escapeHtml(colorLabel(displayedResult.severity))}</div>
+            <div class="scamly-context">${escapeHtml(email.provider || 'email')} · scanning opened message</div>
           </div>
-          <div class="scamly-meter"><span style="width:${displayedResult.score}%"></span></div>
-          <div class="scamly-label">Top signals</div>
-          <ul class="scamly-signals">${signalItems(localResult.flags) || '<li>No strong signals from the visible email text.</li>'}</ul>
-          <div class="scamly-label">Deep AI Check</div>
-          <div class="scamly-ai-box">${createAiStatusHtml(aiState)}</div>
-          <div class="scamly-label">What to do</div>
-          <ul class="scamly-advice">${adviceItems(displayedResult.advice || localResult.advice)}</ul>
-          <div class="scamly-footer">
-            <button class="scamly-btn scamly-btn-rescan" type="button">Rescan</button>
-            <button class="scamly-btn scamly-btn-ai" type="button">Deep AI Check</button>
-            <a class="scamly-link" href="${feedbackHref}" target="_blank" rel="noopener noreferrer">Send feedback</a>
+          <div class="scamly-score-wrap">
+            <div class="scamly-score">${displayedResult.score}/100</div>
+            <div class="scamly-risk-pill">${escapeHtml(colorLabel(displayedResult.severity))}</div>
           </div>
+        </div>
+        <div class="scamly-summary-row">
+          <div class="scamly-summary-text">${escapeHtml(displayedResult.summary)}</div>
+          <div class="scamly-ai-inline ${aiState?.status === 'error' ? 'error' : ''}">${escapeHtml(aiSummary(aiState))}</div>
+        </div>
+        <div class="scamly-meter"><span style="width:${displayedResult.score}%"></span></div>
+        <div class="scamly-detail-grid">
+          <div class="scamly-detail"><span class="label">Top signals</span><span class="value">${escapeHtml(localSignalsText(localResult.flags))}</span></div>
+          <div class="scamly-detail"><span class="label">What to do</span><span class="value">${escapeHtml(adviceText(displayedResult.advice || localResult.advice))}</span></div>
+        </div>
+        <div class="scamly-actions">
+          <button class="scamly-btn scamly-btn-rescan" type="button">Rescan</button>
+          <button class="scamly-btn scamly-btn-ai" type="button">Deep AI Check</button>
+          <a class="scamly-link" href="${feedbackHref}" target="_blank" rel="noopener noreferrer">Send feedback</a>
+          <button class="scamly-close" aria-label="Hide Scamly banner">×</button>
         </div>
       </div>
     `;
@@ -359,7 +344,10 @@
     }
 
     const email = getCurrentEmail();
-    if (!email.subject && !email.body) return;
+    if (!email.messageOpen || (!email.subject && !email.body)) {
+      document.getElementById(ROOT_ID)?.remove();
+      return;
+    }
 
     const fingerprint = fingerprintEmail(email);
     const justRendered = Date.now() - lastRenderAt < 500;
