@@ -1,46 +1,55 @@
 #scamly-root {
   all: initial;
   position: fixed;
-  top: 12px;
+  top: 10px;
   left: 50%;
   transform: translateX(-50%);
-  width: min(1040px, calc(100vw - 32px));
+  width: min(760px, calc(100vw - 20px));
   z-index: 2147483647;
   font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
-#scamly-root .scamly-banner {
-  background: #0f1726;
-  color: #ecf3ff;
+#scamly-root .scamly-strip {
+  background: rgba(11, 19, 33, 0.98);
+  color: #eef4ff;
   border: 1px solid rgba(255,255,255,0.12);
-  border-radius: 16px;
-  box-shadow: 0 12px 34px rgba(0,0,0,0.24);
+  border-radius: 14px;
+  box-shadow: 0 14px 34px rgba(0,0,0,0.20);
   overflow: hidden;
-  padding: 12px 14px;
 }
 
-#scamly-root .scamly-main-row,
-#scamly-root .scamly-summary-row,
-#scamly-root .scamly-actions {
-  display: flex;
+#scamly-root .scamly-standard,
+#scamly-root .scamly-compact,
+#scamly-root .scamly-expanded {
+  padding: 10px 12px;
+}
+
+#scamly-root .scamly-expanded {
+  padding-bottom: 12px;
+}
+
+#scamly-root .scamly-strip-main {
+  display: grid;
+  grid-template-columns: auto auto minmax(120px, 1fr) auto auto auto;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+  gap: 10px;
 }
 
-#scamly-root .scamly-main-row {
-  margin-bottom: 8px;
-}
-
-#scamly-root .scamly-brand-line {
-  display: flex;
+#scamly-root .scamly-brand-wrap {
+  display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 7px;
+  min-width: 0;
+}
+
+#scamly-root .scamly-shield {
+  font-size: 14px;
 }
 
 #scamly-root .scamly-brand {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 800;
+  letter-spacing: 0.01em;
 }
 
 #scamly-root .scamly-beta {
@@ -49,168 +58,206 @@
   text-transform: uppercase;
   padding: 3px 6px;
   border-radius: 999px;
-  background: rgba(255, 193, 7, 0.18);
-  color: #ffd56b;
-}
-
-#scamly-root .scamly-context,
-#scamly-root .scamly-summary-text,
-#scamly-root .scamly-ai-inline,
-#scamly-root .scamly-detail .value {
-  font-size: 12px;
-  line-height: 1.45;
-  color: #d6e4f8;
-}
-
-#scamly-root .scamly-context {
-  color: #9db6da;
-  margin-top: 2px;
+  background: rgba(255, 205, 60, 0.18);
+  color: #ffd86f;
 }
 
 #scamly-root .scamly-score-wrap {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 2px;
+  white-space: nowrap;
 }
 
 #scamly-root .scamly-score {
-  font-size: 26px;
-  font-weight: 800;
+  font-size: 24px;
+  line-height: 1;
+  font-weight: 900;
+}
+
+#scamly-root .scamly-score-suffix {
+  font-size: 12px;
+  color: #a9bddb;
+  margin-right: 7px;
 }
 
 #scamly-root .scamly-risk-pill {
-  font-size: 12px;
-  font-weight: 700;
-  padding: 5px 10px;
+  font-size: 11px;
+  font-weight: 800;
   border-radius: 999px;
-  background: rgba(255,255,255,0.08);
-}
-
-#scamly-root .scamly-summary-row {
-  align-items: flex-start;
+  padding: 4px 8px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
 }
 
 #scamly-root .scamly-summary-text {
-  font-size: 13px;
-  font-weight: 700;
-  color: #f4f8ff;
-  flex: 1 1 auto;
-}
-
-#scamly-root .scamly-ai-inline {
-  min-width: 180px;
-  text-align: right;
-  color: #9db6da;
-}
-
-#scamly-root .scamly-ai-inline.error {
-  color: #ffb6bf;
-}
-
-#scamly-root .scamly-meter {
-  width: 100%;
-  height: 8px;
-  background: rgba(255,255,255,0.08);
-  border-radius: 999px;
+  min-width: 0;
   overflow: hidden;
-  margin: 10px 0 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 13px;
+  color: #dbe6f8;
 }
 
-#scamly-root .scamly-meter > span {
-  display: block;
-  height: 100%;
-  width: 0;
-  border-radius: inherit;
-  transition: width 200ms ease;
+#scamly-root .scamly-status {
+  font-size: 12px;
+  color: #97b7e7;
+  white-space: nowrap;
 }
 
-#scamly-root .scamly-detail-grid {
+#scamly-root .scamly-status.error {
+  color: #ffb9c0;
+}
+
+#scamly-root .scamly-icon-btn,
+#scamly-root .scamly-btn,
+#scamly-root .scamly-link {
+  appearance: none;
+  border: 0;
+  text-decoration: none;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+#scamly-root .scamly-icon-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.08);
+  color: #eef4ff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  line-height: 1;
+}
+
+#scamly-root .scamly-icon-btn:hover,
+#scamly-root .scamly-btn:hover,
+#scamly-root .scamly-link:hover {
+  filter: brightness(1.06);
+}
+
+#scamly-root .scamly-detail-panel {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px 14px;
-  margin-bottom: 12px;
+  grid-template-columns: 1.05fr 0.95fr;
+  gap: 18px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255,255,255,0.1);
 }
 
-#scamly-root .scamly-detail {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+#scamly-root .scamly-detail-col {
   min-width: 0;
 }
 
-#scamly-root .scamly-detail .label {
+#scamly-root .scamly-detail-title {
   font-size: 11px;
-  font-weight: 700;
-  color: #9db6da;
+  font-weight: 800;
+  color: #98b7e4;
   text-transform: uppercase;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.04em;
+  margin-bottom: 6px;
+}
+
+#scamly-root .scamly-detail-copy {
+  font-size: 13px;
+  line-height: 1.45;
+  color: #eef4ff;
+  margin-bottom: 8px;
+}
+
+#scamly-root .scamly-list {
+  margin: 0;
+  padding-left: 18px;
+  color: #dbe6f8;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+#scamly-root .scamly-list li + li {
+  margin-top: 5px;
 }
 
 #scamly-root .scamly-actions {
-  justify-content: flex-start;
+  display: flex;
   flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
 }
 
 #scamly-root .scamly-btn,
-#scamly-root .scamly-link,
-#scamly-root .scamly-close {
-  appearance: none;
-  border: 0;
+#scamly-root .scamly-link {
   border-radius: 10px;
   padding: 8px 10px;
   font-size: 12px;
-  font-weight: 700;
-  text-decoration: none;
-  cursor: pointer;
+  font-weight: 800;
 }
 
 #scamly-root .scamly-btn {
   background: #e8f0fe;
-  color: #0b1b33;
+  color: #10223f;
 }
 
 #scamly-root .scamly-link {
   background: rgba(255,255,255,0.08);
-  color: #ecf3ff;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  color: #eef4ff;
 }
 
-#scamly-root .scamly-close {
-  margin-left: auto;
-  background: transparent;
-  color: #9db6da;
-  font-size: 18px;
-  line-height: 1;
-  padding-inline: 8px;
+#scamly-root .sev-low {
+  border-color: rgba(70, 211, 106, 0.28);
+}
+#scamly-root .sev-low .scamly-risk-pill {
+  background: rgba(70, 211, 106, 0.18);
+  color: #75eba0;
 }
 
-#scamly-root .sev-low .scamly-meter > span { background: #46d36a; }
-#scamly-root .sev-moderate .scamly-meter > span { background: #ffc857; }
-#scamly-root .sev-high .scamly-meter > span { background: #ff8f5a; }
-#scamly-root .sev-critical .scamly-meter > span { background: #ff5d6c; }
+#scamly-root .sev-moderate {
+  border-color: rgba(255, 200, 87, 0.32);
+}
+#scamly-root .sev-moderate .scamly-risk-pill {
+  background: rgba(255, 200, 87, 0.18);
+  color: #ffd777;
+}
 
-@media (max-width: 720px) {
+#scamly-root .sev-high {
+  border-color: rgba(255, 143, 90, 0.38);
+}
+#scamly-root .sev-high .scamly-risk-pill {
+  background: rgba(255, 143, 90, 0.18);
+  color: #ffb08c;
+}
+
+#scamly-root .sev-critical {
+  border-color: rgba(255, 93, 108, 0.42);
+}
+#scamly-root .sev-critical .scamly-risk-pill {
+  background: rgba(255, 93, 108, 0.18);
+  color: #ffb2ba;
+}
+
+@media (max-width: 860px) {
   #scamly-root {
-    width: calc(100vw - 16px);
-    top: 8px;
+    width: calc(100vw - 12px);
+    top: 6px;
   }
 
-  #scamly-root .scamly-summary-row,
-  #scamly-root .scamly-main-row {
-    flex-direction: column;
-    align-items: flex-start;
+  #scamly-root .scamly-strip-main {
+    grid-template-columns: auto auto 1fr auto auto;
+    grid-template-areas:
+      "brand score score toggle close"
+      "summary summary summary status status";
+    row-gap: 8px;
   }
 
-  #scamly-root .scamly-score-wrap,
-  #scamly-root .scamly-ai-inline {
-    width: 100%;
-    justify-content: space-between;
-    text-align: left;
-  }
+  #scamly-root .scamly-brand-wrap { grid-area: brand; }
+  #scamly-root .scamly-score-wrap { grid-area: score; }
+  #scamly-root .scamly-summary-text { grid-area: summary; }
+  #scamly-root .scamly-status { grid-area: status; justify-self: end; }
+  #scamly-root .scamly-toggle { grid-area: toggle; }
+  #scamly-root .scamly-close { grid-area: close; }
 
-  #scamly-root .scamly-detail-grid {
+  #scamly-root .scamly-detail-panel {
     grid-template-columns: 1fr;
   }
 }
