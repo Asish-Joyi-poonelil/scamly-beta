@@ -1,6 +1,6 @@
 (function () {
   const ROOT_ID = 'scamly-root';
-  const SCAN_INTERVAL_MS = 1200;
+  const SCAN_INTERVAL_MS = 350;
   let observer;
   let lastFingerprint = '';
   let lastRenderAt = 0;
@@ -11,6 +11,14 @@
     expanded: false,
     dismissedFingerprint: '',
     activeFingerprint: ''
+  };
+  const guardState = {
+    active: false,
+    fingerprint: '',
+    sourceNode: null,
+    email: null,
+    localResult: null,
+    settings: null
   };
 
   const DEFAULT_SETTINGS = {
@@ -29,6 +37,14 @@
     return new Promise((resolve) => {
       chrome.storage.sync.get(DEFAULT_SETTINGS, (items) => resolve(items));
     });
+  }
+
+  function isAiReady(settings) {
+    return Boolean(settings.aiEnabled && settings.aiConsent && settings.backendUrl);
+  }
+
+  function shouldAutoDeepScan(settings) {
+    return Boolean(isAiReady(settings) && settings.autoDeepScan);
   }
 
   function getProvider() {
@@ -159,6 +175,16 @@
 
   function removeRoot() {
     document.getElementById(ROOT_ID)?.remove();
+    clearGuardState();
+  }
+
+  function clearGuardState() {
+    guardState.active = false;
+    guardState.fingerprint = '';
+    guardState.sourceNode = null;
+    guardState.email = null;
+    guardState.localResult = null;
+    guardState.settings = null;
   }
 
   function colorLabel(severity) {
@@ -166,6 +192,7 @@
       case 'critical': return 'Critical risk';
       case 'high': return 'High risk';
       case 'moderate': return 'Caution';
+      case 'checking': return 'Checking';
       default: return 'Low risk';
     }
   }
@@ -222,7 +249,7 @@
     if (!settings.aiConsent) return 'AI ready after consent';
     if (!settings.backendUrl) return 'AI needs backend';
     if (!aiState) return 'AI ready';
-    if (aiState.status === 'loading') return 'AI checking…';
+    if (aiState.status === 'loading') return aiState.warning || 'AI checking…';
     if (aiState.status === 'error') return 'AI unavailable';
     return 'AI checked';
   }
@@ -238,6 +265,21 @@
 
   function compactSummary(displayedResult) {
     return shorten(displayedResult.summary || 'Review the email carefully before taking action.', 95);
+  }
+
+  function buildPendingDisplayedResult(localResult, aiState) {
+    const localScore = Number(localResult?.score || 0);
+    if (localScore >= 40) {
+      return {
+        ...localResult,
+        summary: aiState?.warning || 'Possible risk found. Hold before clicking until AI finishes checking.'
+      };
+    }
+    return {
+      ...localResult,
+      severity: 'checking',
+      summary: aiState?.warning || 'Checking links and content before showing the final risk.'
+    };
   }
 
   function buildCollapsedMarkup(displayedResult, settings, aiState) {
@@ -315,6 +357,19 @@
     `;
   }
 
+  function syncGuardState(email, localResult, settings, aiState) {
+    if (!email?.sourceNode || aiState?.status !== 'loading') {
+      clearGuardState();
+      return;
+    }
+    guardState.active = true;
+    guardState.fingerprint = fingerprintEmail(email);
+    guardState.sourceNode = email.sourceNode;
+    guardState.email = email;
+    guardState.localResult = localResult;
+    guardState.settings = settings;
+  }
+
   function attachHandlers(root, email, localResult, settings) {
     root.querySelector('.scamly-toggle')?.addEventListener('click', () => {
       uiState.expanded = !uiState.expanded;
@@ -347,7 +402,14 @@
     const fingerprint = fingerprintEmail(email);
     uiState.activeFingerprint = fingerprint;
     const effectiveAiState = options.preserveAiState ? getLastAiStateForFingerprint(fingerprint) || aiState : aiState;
-    const displayedResult = effectiveAiState?.status === 'done' ? effectiveAiState.analysis.combined : localResult;
+    let displayedResult;
+    if (effectiveAiState?.status === 'done') {
+      displayedResult = effectiveAiState.analysis.combined;
+    } else if (effectiveAiState?.status === 'loading') {
+      displayedResult = buildPendingDisplayedResult(localResult, effectiveAiState);
+    } else {
+      displayedResult = localResult;
+    }
 
     root.className = `sev-${displayedResult.severity}`;
     root.innerHTML = uiState.expanded
@@ -355,6 +417,7 @@
       : buildCollapsedMarkup(displayedResult, settings, effectiveAiState);
 
     attachHandlers(root, email, localResult, settings);
+    syncGuardState(email, localResult, settings, effectiveAiState);
   }
 
   async function updateLastScanStorage(localResult, email, aiState) {
@@ -473,25 +536,31 @@
       uiState.dismissedFingerprint = '';
     }
 
-    const justRendered = Date.now() - lastRenderAt < 500;
+    const justRendered = Date.now() - lastRenderAt < 220;
     if (!force && (fingerprint === lastFingerprint || justRendered)) return;
 
     lastFingerprint = fingerprint;
     const localResult = ScamlyCore.analyzeEmail(email);
     const cachedAi = aiCache.get(fingerprint);
     const aiState = cachedAi ? { status: 'done', analysis: cachedAi } : null;
-    renderResult(localResult, settings, aiState, email);
+    const shouldStartAi = shouldAutoDeepScan(settings) && !cachedAi;
+
+    if (shouldStartAi) {
+      renderResult(localResult, settings, { status: 'loading' }, email);
+    } else {
+      renderResult(localResult, settings, aiState, email);
+    }
     lastRenderAt = Date.now();
     updateLastScanStorage(localResult, email, aiState);
 
-    if (settings.aiEnabled && settings.aiConsent && settings.backendUrl && settings.autoDeepScan) {
+    if (shouldStartAi) {
       startDeepAnalyze(email, localResult, settings, false);
     }
   }
 
   function scheduleScan(force = false) {
     clearTimeout(scanTimeout);
-    scanTimeout = setTimeout(() => scanNow(force), force ? 80 : SCAN_INTERVAL_MS);
+    scanTimeout = setTimeout(() => scanNow(force), force ? 40 : SCAN_INTERVAL_MS);
   }
 
   function setupObserver() {
@@ -503,6 +572,25 @@
       characterData: false
     });
   }
+
+  document.addEventListener('click', (event) => {
+    const anchor = event.target?.closest?.('a[href]');
+    if (!anchor || !guardState.active || !guardState.sourceNode) return;
+    if (!guardState.sourceNode.contains(anchor)) return;
+    if (!/^https?:/i.test(anchor.href || '')) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation?.();
+    uiState.expanded = false;
+    renderResult(
+      guardState.localResult,
+      guardState.settings,
+      { status: 'loading', warning: 'Link paused while Scamly finishes checking this email.' },
+      guardState.email
+    );
+    lastRenderAt = Date.now();
+  }, true);
 
   chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     if (message?.type === 'SCAMLY_RESCAN') {
