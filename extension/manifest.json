@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Scamly Beta \u2013 AI Email Scam Detector",
-  "version": "0.9.1",
+  "version": "0.9.2",
   "description": "Scamly Beta scans visible email content in Gmail, Outlook, and Yahoo Mail for scam signals. Optional Deep AI Check sends the visible email text to your configured Scamly backend after opt-in.",
   "action": {
     "default_title": "Scamly Beta",
